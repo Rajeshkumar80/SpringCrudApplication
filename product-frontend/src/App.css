@@ -934,8 +934,8 @@
 .accent-purple{ background: #f5f3ff; color: #7c3aed; }
 .accent-teal  { background: #f0fdfa; color: #0d9488; }
 
-[data-theme="dark"] .accent-purple { background: #1e1433; color: #a78bfa; }
-[data-theme="dark"] .accent-teal   { background: #0d2420; color: #2dd4bf; }
+[data-theme="dark"] .accent-purple { background: #0f0a1f; color: #a78bfa; }
+[data-theme="dark"] .accent-teal   { background: #001a16; color: #2dd4bf; }
 
 /* ==============================
    Toast Notification

@@ -142,11 +142,6 @@ function ProductModal({ open, onClose, onSave, editProduct }) {
                     <input className="form-input" name="stock" type="number" value={form.stock} onChange={handleChange} placeholder="e.g. 20" min="0" />
                     {errors.stock && <span className="form-error">{errors.stock}</span>}
                   </div>
-                  {/* Image URL */}
-                  <div className="form-group span-2">
-                    <label className="form-label">Image URL</label>
-                    <input className="form-input" name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://..." />
-                  </div>
                 </div>
               </div>
 

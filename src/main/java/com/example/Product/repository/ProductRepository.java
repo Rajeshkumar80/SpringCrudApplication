@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -42,14 +41,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT AVG(p.price) FROM Product p")
     Double averagePrice();
 
-    @Query("SELECT p FROM Product p WHERE p.price = (SELECT MAX(pp.price) FROM Product pp)")
-    Product findHighestPriceProduct();
+    @Query("SELECT p FROM Product p WHERE p.price = (SELECT MAX(pp.price) FROM Product pp) ORDER BY p.id ASC")
+    List<Product> findHighestPriceProducts(Pageable pageable);
 
-    @Query("SELECT p FROM Product p WHERE p.price = (SELECT MIN(pp.price) FROM Product pp)")
-    Product findLowestPriceProduct();
+    @Query("SELECT p FROM Product p WHERE p.price = (SELECT MIN(pp.price) FROM Product pp) ORDER BY p.id ASC")
+    List<Product> findLowestPriceProducts(Pageable pageable);
 
-    @Query("SELECT p FROM Product p WHERE p.rating = (SELECT MAX(pp.rating) FROM Product pp)")
-    Product findHighestRatedProduct();
+    @Query("SELECT p FROM Product p WHERE p.rating = (SELECT MAX(pp.rating) FROM Product pp) ORDER BY p.id ASC")
+    List<Product> findHighestRatedProducts(Pageable pageable);
 
     // ==============================
     // Analytics Queries

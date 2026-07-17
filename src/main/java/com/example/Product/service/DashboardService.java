@@ -4,7 +4,10 @@ import com.example.Product.dto.DashboardDTO;
 import com.example.Product.dto.ProductDTO;
 import com.example.Product.model.Product;
 import com.example.Product.repository.ProductRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class DashboardService {
@@ -30,9 +33,9 @@ public class DashboardService {
         Double averagePriceDouble = productRepository.averagePrice();
         double averagePrice = (averagePriceDouble != null) ? averagePriceDouble : 0.0;
 
-        ProductDTO highestPrice = mapToDTO(productRepository.findHighestPriceProduct());
-        ProductDTO lowestPrice = mapToDTO(productRepository.findLowestPriceProduct());
-        ProductDTO highestRated = mapToDTO(productRepository.findHighestRatedProduct());
+        ProductDTO highestPrice = mapToDTO(firstOrNull(productRepository.findHighestPriceProducts(PageRequest.of(0, 1))));
+        ProductDTO lowestPrice  = mapToDTO(firstOrNull(productRepository.findLowestPriceProducts(PageRequest.of(0, 1))));
+        ProductDTO highestRated = mapToDTO(firstOrNull(productRepository.findHighestRatedProducts(PageRequest.of(0, 1))));
 
         return new DashboardDTO(
                 totalProducts,
@@ -43,6 +46,13 @@ public class DashboardService {
                 lowestPrice,
                 highestRated
         );
+    }
+
+    // ==============================
+    // Helper: first element or null
+    // ==============================
+    private Product firstOrNull(List<Product> list) {
+        return (list != null && !list.isEmpty()) ? list.get(0) : null;
     }
 
     // ==============================

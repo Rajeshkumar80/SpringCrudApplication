@@ -183,12 +183,7 @@ function ProductsPage({ openAdd, setOpenAdd, showToast }) {
                       <td style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-xs)' }}>{p.id}</td>
                       <td>
                         <div className="product-name-cell">
-                          {p.imageUrl ? (
-                            <img src={p.imageUrl} alt={p.name} className="product-img"
-                              onError={(e) => { e.target.style.display = 'none'; }} />
-                          ) : (
-                            <div className="product-img-placeholder"><MdPhoneAndroid /></div>
-                          )}
+                          <div className="product-img-placeholder"><MdPhoneAndroid /></div>
                           <div>
                             <div className="product-name">{p.name}</div>
                             <div className="product-brand">{p.brand}</div>

@@ -7,10 +7,16 @@ import Navbar from './components/Navbar';
 import Toast from './components/Toast';
 import Chatbot from './components/Chatbot';
 
-import DashboardPage from './pages/DashboardPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import ProductsPage from './pages/ProductsPage';
-import AiAssistantPage from './pages/AiAssistantPage';
+// Pages
+import DashboardPage        from './pages/DashboardPage';
+import AnalyticsPage        from './pages/AnalyticsPage';
+import ProductsPage         from './pages/ProductsPage';
+import AiAssistantPage      from './pages/AiAssistantPage';
+import AiDatabasePage       from './pages/AiDatabasePage';
+import AiInsightsPage       from './pages/AiInsightsPage';
+import AiConsultantPage     from './pages/AiConsultantPage';
+import AiRecommendationsPage from './pages/AiRecommendationsPage';
+import AiSearchPage         from './pages/AiSearchPage';
 
 let toastId = 1;
 
@@ -21,7 +27,6 @@ function App() {
   const [openAdd, setOpenAdd] = useState(false);
   const [toasts, setToasts] = useState([]);
 
-  // Apply dark mode to document
   const toggleDark = () => {
     setDarkMode((prev) => {
       const next = !prev;
@@ -33,46 +38,41 @@ function App() {
   const showToast = useCallback((message, type = 'info') => {
     const id = toastId++;
     setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3500);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
   }, []);
 
   const removeToast = (id) => setToasts((prev) => prev.filter((t) => t.id !== id));
 
   const renderPage = () => {
     switch (activePage) {
-      case 'dashboard':    return <DashboardPage />;
-      case 'analytics':    return <AnalyticsPage />;
-      case 'products':     return <ProductsPage openAdd={openAdd} setOpenAdd={setOpenAdd} showToast={showToast} />;
-      case 'ai-assistant': return <AiAssistantPage />;
-      default:             return <DashboardPage />;
+      case 'dashboard':            return <DashboardPage />;
+      case 'analytics':            return <AnalyticsPage />;
+      case 'products':             return <ProductsPage openAdd={openAdd} setOpenAdd={setOpenAdd} showToast={showToast} />;
+      case 'ai-database':          return <AiDatabasePage />;
+      case 'ai-insights':          return <AiInsightsPage />;
+      case 'ai-consultant':        return <AiConsultantPage />;
+      case 'ai-recommendations':   return <AiRecommendationsPage />;
+      case 'ai-search':            return <AiSearchPage />;
+      case 'ai-assistant':         return <AiAssistantPage />;
+      default:                     return <DashboardPage />;
     }
   };
 
   return (
     <div className="app-shell">
-      {/* Sidebar */}
       <Sidebar
         activePage={activePage}
         setActivePage={(page) => { setActivePage(page); setSidebarOpen(false); }}
         isOpen={sidebarOpen}
       />
 
-      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          style={{
-            position: 'fixed', inset: 0,
-            background: 'rgba(0,0,0,0.3)',
-            zIndex: 99,
-            backdropFilter: 'blur(2px)',
-          }}
-        />
+        <div onClick={() => setSidebarOpen(false)} style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)',
+          zIndex: 99, backdropFilter: 'blur(2px)',
+        }} />
       )}
 
-      {/* Main */}
       <div className="main-content">
         <Navbar
           activePage={activePage}
@@ -96,10 +96,7 @@ function App() {
         </AnimatePresence>
       </div>
 
-      {/* Floating Chatbot */}
       <Chatbot />
-
-      {/* Toast Notifications */}
       <Toast toasts={toasts} removeToast={removeToast} />
     </div>
   );

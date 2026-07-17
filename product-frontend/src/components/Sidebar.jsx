@@ -1,12 +1,17 @@
-import { MdDashboard, MdInventory2, MdBarChart, MdSmartphone } from 'react-icons/md';
-import { RiRobot2Fill } from 'react-icons/ri';
+import {
+  MdDashboard, MdInventory2, MdBarChart, MdSmartphone,
+} from 'react-icons/md';
+import {
+  RiRobot2Fill, RiDatabase2Fill, RiBrainFill,
+  RiShoppingBag3Fill, RiSearchEyeLine,
+} from 'react-icons/ri';
 
 const navItems = [
   {
     section: 'Overview',
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: <MdDashboard /> },
-      { id: 'analytics', label: 'Analytics', icon: <MdBarChart /> },
+      { id: 'dashboard',  label: 'Dashboard',  icon: <MdDashboard /> },
+      { id: 'analytics',  label: 'Analytics',  icon: <MdBarChart /> },
     ],
   },
   {
@@ -16,9 +21,14 @@ const navItems = [
     ],
   },
   {
-    section: 'AI',
+    section: 'AI Features',
     items: [
-      { id: 'ai-assistant', label: 'AI Assistant', icon: <RiRobot2Fill /> },
+      { id: 'ai-database',       label: 'AI Chat with DB',     icon: <RiDatabase2Fill /> },
+      { id: 'ai-insights',       label: 'Business Analyst',    icon: <RiBrainFill /> },
+      { id: 'ai-consultant',     label: 'Product Consultant',  icon: <RiShoppingBag3Fill /> },
+      { id: 'ai-recommendations',label: 'Recommendation AI',   icon: <RiRobot2Fill /> },
+      { id: 'ai-search',         label: 'AI Search',           icon: <RiSearchEyeLine /> },
+      { id: 'ai-assistant',      label: 'AI Chatbot',          icon: <RiRobot2Fill /> },
     ],
   },
 ];
@@ -33,7 +43,7 @@ function Sidebar({ activePage, setActivePage, isOpen }) {
         </div>
         <div className="sidebar-logo-text">
           <span className="sidebar-logo-title">AI Product</span>
-          <span className="sidebar-logo-sub">Management System</span>
+          <span className="sidebar-logo-sub">Intelligence Platform</span>
         </div>
       </div>
 

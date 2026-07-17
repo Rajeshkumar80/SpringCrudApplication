@@ -1,10 +1,15 @@
 import { MdMenu, MdLightMode, MdDarkMode, MdAdd } from 'react-icons/md';
 
 const pageTitles = {
-  dashboard: { title: 'Dashboard', sub: 'Overview of your product inventory' },
-  analytics:  { title: 'Analytics',  sub: 'Charts and insights' },
-  products:   { title: 'Products',   sub: 'Manage your product catalog' },
-  'ai-assistant': { title: 'AI Assistant', sub: 'Ask anything about your inventory' },
+  dashboard:            { title: 'Dashboard',            sub: 'Overview of your product inventory' },
+  analytics:            { title: 'Analytics',            sub: 'Charts and data insights' },
+  products:             { title: 'Products',             sub: 'Manage your product catalog' },
+  'ai-database':        { title: 'AI Chat with Database',sub: 'Ask questions — AI converts them to SQL and queries your database' },
+  'ai-insights':        { title: 'AI Business Analyst',  sub: 'AI-generated insights from your inventory data' },
+  'ai-consultant':      { title: 'AI Product Consultant',sub: 'Get expert phone recommendations tailored to your needs' },
+  'ai-recommendations': { title: 'AI Recommendation Engine', sub: 'Every product scored across Gaming, Camera, Battery, Performance, Value' },
+  'ai-search':          { title: 'AI Natural Language Search', sub: 'Search in plain English — no filters needed' },
+  'ai-assistant':       { title: 'AI Chatbot',           sub: 'Ask anything about your product inventory' },
 };
 
 function Navbar({ activePage, darkMode, toggleDark, onAddProduct, toggleSidebar }) {

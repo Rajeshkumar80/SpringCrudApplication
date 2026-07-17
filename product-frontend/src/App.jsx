@@ -1,148 +1,106 @@
-import { useEffect, useState } from "react";
-import "./App.css";
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import './App.css';
 
-import ProductForm from "./components/ProductForm";
-import ProductList from "./components/ProductList";
-import ProductService from "./services/ProductService";
+import Sidebar from './components/Sidebar';
+import Navbar from './components/Navbar';
+import Toast from './components/Toast';
+import Chatbot from './components/Chatbot';
+
+import DashboardPage from './pages/DashboardPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import ProductsPage from './pages/ProductsPage';
+import AiAssistantPage from './pages/AiAssistantPage';
+
+let toastId = 1;
 
 function App() {
-  const emptyProduct = {
-    pid: null,
-    pname: "",
-    price: "",
-    description: "",
+  const [activePage, setActivePage] = useState('dashboard');
+  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  // Apply dark mode to document
+  const toggleDark = () => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+      return next;
+    });
   };
 
-  const [products, setProducts] = useState([]);
-  const [product, setProduct] = useState(emptyProduct);
-  const [editing, setEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    loadProducts();
+  const showToast = useCallback((message, type = 'info') => {
+    const id = toastId++;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3500);
   }, []);
 
-  const loadProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await ProductService.getAllProducts();
-      setProducts(response.data);
-    } catch (error) {
-      console.error("Error loading products:", error);
-      alert("Unable to load products.");
-    } finally {
-      setLoading(false);
+  const removeToast = (id) => setToasts((prev) => prev.filter((t) => t.id !== id));
+
+  const renderPage = () => {
+    switch (activePage) {
+      case 'dashboard':    return <DashboardPage />;
+      case 'analytics':    return <AnalyticsPage />;
+      case 'products':     return <ProductsPage openAdd={openAdd} setOpenAdd={setOpenAdd} showToast={showToast} />;
+      case 'ai-assistant': return <AiAssistantPage />;
+      default:             return <DashboardPage />;
     }
   };
-
-  const saveProduct = async () => {
-    try {
-      if (editing) {
-        await ProductService.updateProduct(product.pid, {
-          pname: product.pname,
-          price: product.price,
-          description: product.description,
-        });
-
-        alert("Product Updated Successfully");
-      } else {
-        await ProductService.addProduct({
-          pname: product.pname,
-          price: product.price,
-          description: product.description,
-        });
-
-        alert("Product Added Successfully");
-      }
-
-      clearForm();
-      loadProducts();
-    } catch (error) {
-      console.error("Error saving product:", error);
-      alert("Error Saving Product");
-    }
-  };
-
-  const editProduct = (selectedProduct) => {
-    setProduct({
-      pid: selectedProduct.pid,
-      pname: selectedProduct.pname,
-      price: selectedProduct.price,
-      description: selectedProduct.description,
-    });
-
-    setEditing(true);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const deleteProduct = async (pid) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this product?"
-    );
-
-    if (!confirmed) return;
-
-    try {
-      await ProductService.deleteProduct(pid);
-      alert("Product Deleted Successfully");
-      loadProducts();
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      alert("Delete Failed");
-    }
-  };
-
-  const clearForm = () => {
-    setProduct(emptyProduct);
-    setEditing(false);
-  };
-
-  const filteredProducts = products.filter((item) => {
-    const keyword = search.toLowerCase();
-
-    return (
-      item.pname.toLowerCase().includes(keyword) ||
-      item.description.toLowerCase().includes(keyword) ||
-      item.price.toString().includes(search) ||
-      item.pid.toString().includes(search)
-    );
-  });
 
   return (
-    <div className="app">
-      <div className="container">
+    <div className="app-shell">
+      {/* Sidebar */}
+      <Sidebar
+        activePage={activePage}
+        setActivePage={(page) => { setActivePage(page); setSidebarOpen(false); }}
+        isOpen={sidebarOpen}
+      />
 
-        {/* Header */}
-        <header className="page-header">
-          <h1>📦 Product Management System</h1>
-          <p>Spring Boot + React + MySQL CRUD Application</p>
-        </header>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.3)',
+            zIndex: 99,
+            backdropFilter: 'blur(2px)',
+          }}
+        />
+      )}
 
-        {/* Product Form */}
-        <ProductForm
-          product={product}
-          setProduct={setProduct}
-          saveProduct={saveProduct}
-          clearForm={clearForm}
-          editing={editing}
+      {/* Main */}
+      <div className="main-content">
+        <Navbar
+          activePage={activePage}
+          darkMode={darkMode}
+          toggleDark={toggleDark}
+          onAddProduct={() => { setActivePage('products'); setOpenAdd(true); }}
+          toggleSidebar={() => setSidebarOpen((p) => !p)}
         />
 
-        {/* Product List with Search */}
-        <ProductList
-          products={filteredProducts}
-          editProduct={editProduct}
-          deleteProduct={deleteProduct}
-          loading={loading}
-          search={search}
-          setSearch={setSearch}
-        />
-
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activePage}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+            style={{ flex: 1 }}
+          >
+            {renderPage()}
+          </motion.div>
+        </AnimatePresence>
       </div>
+
+      {/* Floating Chatbot */}
+      <Chatbot />
+
+      {/* Toast Notifications */}
+      <Toast toasts={toasts} removeToast={removeToast} />
     </div>
   );
 }

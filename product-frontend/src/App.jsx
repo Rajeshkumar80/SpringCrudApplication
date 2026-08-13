@@ -17,10 +17,13 @@ import AiInsightsPage       from './pages/AiInsightsPage';
 import AiConsultantPage     from './pages/AiConsultantPage';
 import AiRecommendationsPage from './pages/AiRecommendationsPage';
 import AiSearchPage         from './pages/AiSearchPage';
+import LoginPage            from './pages/LoginPage';
+import { useAuth }          from './context/AuthContext';
 
 let toastId = 1;
 
 function App() {
+  const { isAuthenticated } = useAuth();
   const [activePage, setActivePage] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -54,6 +57,7 @@ function App() {
       case 'ai-recommendations':   return <AiRecommendationsPage />;
       case 'ai-search':            return <AiSearchPage />;
       case 'ai-assistant':         return <AiAssistantPage />;
+      case 'login':                return <LoginPage onSuccess={() => setActivePage('dashboard')} />;
       default:                     return <DashboardPage />;
     }
   };
@@ -80,6 +84,7 @@ function App() {
           toggleDark={toggleDark}
           onAddProduct={() => { setActivePage('products'); setOpenAdd(true); }}
           toggleSidebar={() => setSidebarOpen((p) => !p)}
+          onNavigate={setActivePage}
         />
 
         <AnimatePresence mode="wait">

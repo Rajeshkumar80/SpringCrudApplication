@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axiosClient from './axiosClient';
 
-const BASE_URL = '/api/chat';
+const BASE_URL = '/chat';
 
 const ChatService = {
   sendMessage: (message) =>
-    axios.post(BASE_URL, { message }),
+    axiosClient.post(BASE_URL, { message }),
 };
 
 export default ChatService;

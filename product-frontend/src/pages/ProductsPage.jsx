@@ -5,6 +5,7 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import ProductService from '../services/ProductService';
 import ProductModal from '../components/ProductModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import { useAuth } from '../context/AuthContext';
 
 const SORT_OPTIONS = [
   { value: 'id-asc',     label: 'ID ↑' },
@@ -25,6 +26,7 @@ function stockBadge(stock) {
 }
 
 function ProductsPage({ openAdd, setOpenAdd, showToast }) {
+  const { isAdmin } = useAuth();
   const [data, setData] = useState({ content: [], totalElements: 0, totalPages: 0, number: 0 });
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState('');
@@ -211,14 +213,23 @@ function ProductsPage({ openAdd, setOpenAdd, showToast }) {
                       <td>{stockBadge(p.stock)}</td>
                       <td>
                         <div className="action-btns">
-                          <button className="btn-icon edit" title="Edit"
-                            onClick={() => { setEditProduct(p); setModalOpen(true); }}>
-                            <MdEdit />
-                          </button>
-                          <button className="btn-icon delete" title="Delete"
-                            onClick={() => setDeleteTarget(p)}>
-                            <MdDelete />
-                          </button>
+                          {isAdmin && (
+                            <>
+                              <button className="btn-icon edit" title="Edit"
+                                onClick={() => { setEditProduct(p); setModalOpen(true); }}>
+                                <MdEdit />
+                              </button>
+                              <button className="btn-icon delete" title="Delete"
+                                onClick={() => setDeleteTarget(p)}>
+                                <MdDelete />
+                              </button>
+                            </>
+                          )}
+                          {!isAdmin && (
+                            <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+                              View only
+                            </span>
+                          )}
                         </div>
                       </td>
                     </motion.tr>

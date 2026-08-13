@@ -1,20 +1,20 @@
-import axios from 'axios';
+import axiosClient from './axiosClient';
 
-const BASE_URL = '/api/dashboard';
+const BASE_URL = '/dashboard';
 
 const DashboardService = {
 
-  getSummary: () => axios.get(`${BASE_URL}/summary`),
+  getSummary: () => axiosClient.get(`${BASE_URL}/summary`),
 
-  getAnalytics: () => axios.get(`${BASE_URL}/analytics`),
+  getAnalytics: () => axiosClient.get(`${BASE_URL}/analytics`),
 
-  getBrandCount: () => axios.get(`${BASE_URL}/charts/brand-count`),
+  getBrandCount: () => axiosClient.get(`${BASE_URL}/charts/brand-count`),
 
-  getBrandAvgPrice: () => axios.get(`${BASE_URL}/charts/brand-avg-price`),
+  getBrandAvgPrice: () => axiosClient.get(`${BASE_URL}/charts/brand-avg-price`),
 
-  getPriceRange: () => axios.get(`${BASE_URL}/charts/price-range`),
+  getPriceRange: () => axiosClient.get(`${BASE_URL}/charts/price-range`),
 
-  getBrandRating: () => axios.get(`${BASE_URL}/charts/brand-rating`),
+  getBrandRating: () => axiosClient.get(`${BASE_URL}/charts/brand-rating`),
 };
 
 export default DashboardService;

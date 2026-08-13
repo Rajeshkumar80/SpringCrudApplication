@@ -1,10 +1,13 @@
 package com.example.Product.config;
 
 import com.example.Product.model.Product;
+import com.example.Product.model.User;
 import com.example.Product.repository.ProductRepository;
+import com.example.Product.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Seeds 60 real mobile phones with accurate India prices (July 2025).
@@ -17,8 +20,11 @@ import org.springframework.context.annotation.Configuration;
 public class DataLoader {
 
     @Bean
-    CommandLineRunner loadData(ProductRepository repo) {
+    CommandLineRunner loadData(ProductRepository repo,
+                               UserRepository userRepository,
+                               PasswordEncoder passwordEncoder) {
         return args -> {
+            seedUsers(userRepository, passwordEncoder);
             if (repo.count() > 0) {
                 System.out.println("=== DB already seeded. Skipping. ===");
                 return;
@@ -28,6 +34,18 @@ public class DataLoader {
             System.out.println("  60 Real Mobile Phones Loaded Successfully ");
             System.out.println("============================================");
         };
+    }
+
+    // ==============================
+    // Seed default auth accounts
+    // ==============================
+    private void seedUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        if (userRepository.count() > 0) {
+            return;
+        }
+        userRepository.save(new User("admin", passwordEncoder.encode("admin123"), "ADMIN"));
+        userRepository.save(new User("viewer", passwordEncoder.encode("viewer123"), "VIEWER"));
+        System.out.println("=== Default users created: admin/admin123, viewer/viewer123 ===");
     }
 
     private void seedAll(ProductRepository r) {

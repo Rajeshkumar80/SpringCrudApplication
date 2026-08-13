@@ -1,4 +1,5 @@
-import { MdMenu, MdLightMode, MdDarkMode, MdAdd } from 'react-icons/md';
+import { MdMenu, MdLightMode, MdDarkMode, MdAdd, MdLogout, MdLogin } from 'react-icons/md';
+import { useAuth } from '../context/AuthContext';
 
 const pageTitles = {
   dashboard:            { title: 'Dashboard',                 sub: 'Real-time overview of your product inventory' },
@@ -12,8 +13,14 @@ const pageTitles = {
   'ai-assistant':       { title: 'AI Chatbot',                sub: 'Conversational assistant powered by your inventory' },
 };
 
-export default function Navbar({ activePage, darkMode, toggleDark, onAddProduct, toggleSidebar }) {
+export default function Navbar({ activePage, darkMode, toggleDark, onAddProduct, toggleSidebar, onNavigate }) {
+  const { isAuthenticated, isAdmin, logout } = useAuth();
   const page = pageTitles[activePage] || { title: 'Dashboard', sub: '' };
+
+  const handleLogout = () => {
+    logout();
+    onNavigate('dashboard');
+  };
 
   return (
     <header className="navbar">
@@ -29,11 +36,24 @@ export default function Navbar({ activePage, darkMode, toggleDark, onAddProduct,
       </div>
 
       <div className="navbar-right">
-        {activePage === 'products' && (
+        {activePage === 'products' && isAdmin && (
           <button className="btn btn-primary" onClick={onAddProduct}
             style={{ gap: 6, fontSize: 12.5, padding: '7px 14px' }}>
             <MdAdd size={16} />
             Add Product
+          </button>
+        )}
+        {isAuthenticated ? (
+          <button className="btn btn-secondary" onClick={handleLogout}
+            style={{ gap: 6, fontSize: 12.5, padding: '7px 14px' }}>
+            <MdLogout size={15} />
+            Sign out
+          </button>
+        ) : (
+          <button className="btn btn-secondary" onClick={() => onNavigate('login')}
+            style={{ gap: 6, fontSize: 12.5, padding: '7px 14px' }}>
+            <MdLogin size={15} />
+            Sign in
           </button>
         )}
         <button className="dark-toggle" onClick={toggleDark}

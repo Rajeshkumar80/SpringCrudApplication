@@ -19,12 +19,17 @@ import java.util.Date;
 @Service
 public class JwtService {
 
+    // Mirrors the default in application.properties; guards against an empty
+    // JWT_SECRET env var overriding the ${JWT_SECRET:...} fallback with "".
+    private static final String DEFAULT_SECRET = "OB/OiiculTHXfYAeznVX1gikZPY2oSs9s6oi0LuqsCnEz4rIVAq5kCfLGVVK1J+mNtrJU7Mukpon86IOFOJqyw==";
+
     private final SecretKey key;
     private final long expirationMs;
 
     public JwtService(@Value("${jwt.secret}") String secret,
                       @Value("${jwt.expiration-ms}") long expirationMs) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        String resolved = (secret == null || secret.isBlank()) ? DEFAULT_SECRET : secret;
+        this.key = Keys.hmacShaKeyFor(resolved.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }
 

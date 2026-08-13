@@ -85,7 +85,7 @@ Open **http://localhost:5173**.
 
 ## Testing & Coverage
 
-- Backend: `mvn verify` — runs 42 JUnit 5 + Mockito tests and generates the JaCoCo report at `target/site/jacoco/index.html` (service-layer line coverage ≥ 60%)
+- Backend: `mvn verify` — runs 44 JUnit 5 + Mockito tests and generates the JaCoCo report at `target/site/jacoco/index.html` (service-layer line coverage ≥ 60%)
 - Frontend: `cd product-frontend && npm test` — runs the Vitest + React Testing Library suite
 
 ## CI

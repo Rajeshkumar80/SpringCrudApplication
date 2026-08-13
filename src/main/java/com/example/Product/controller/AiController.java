@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * AI Controller — exposes all 5 AI feature endpoints:
@@ -30,17 +31,20 @@ public class AiController {
     private final ProductConsultantService consultantService;
     private final RecommendationEngineService recommendationEngineService;
     private final NlSearchService nlSearchService;
+    private final AiCacheService aiCacheService;
 
     public AiController(NlQueryService nlQueryService,
                         BusinessAnalystService businessAnalystService,
                         ProductConsultantService consultantService,
                         RecommendationEngineService recommendationEngineService,
-                        NlSearchService nlSearchService) {
+                        NlSearchService nlSearchService,
+                        AiCacheService aiCacheService) {
         this.nlQueryService = nlQueryService;
         this.businessAnalystService = businessAnalystService;
         this.consultantService = consultantService;
         this.recommendationEngineService = recommendationEngineService;
         this.nlSearchService = nlSearchService;
+        this.aiCacheService = aiCacheService;
     }
 
     // ==============================
@@ -51,7 +55,18 @@ public class AiController {
     @PostMapping("/query")
     public ResponseEntity<AiQueryResponse> query(
             @Valid @RequestBody AiQueryRequest request) {
-        return ResponseEntity.ok(nlQueryService.query(request.getQuery()));
+        String cacheKey = aiCacheService.key("nlquery", request.getQuery());
+        Optional<Object> cached = aiCacheService.get(cacheKey);
+        if (cached.isPresent()) {
+            return ResponseEntity.ok()
+                    .header("X-Cache", "HIT")
+                    .body((AiQueryResponse) cached.get());
+        }
+        AiQueryResponse response = nlQueryService.query(request.getQuery());
+        aiCacheService.put(cacheKey, response);
+        return ResponseEntity.ok()
+                .header("X-Cache", "MISS")
+                .body(response);
     }
 
     // ==============================
@@ -60,7 +75,18 @@ public class AiController {
     // ==============================
     @GetMapping("/insights")
     public ResponseEntity<BusinessInsightResponse> getInsights() {
-        return ResponseEntity.ok(businessAnalystService.analyze());
+        String cacheKey = aiCacheService.key("insights", "");
+        Optional<Object> cached = aiCacheService.get(cacheKey);
+        if (cached.isPresent()) {
+            return ResponseEntity.ok()
+                    .header("X-Cache", "HIT")
+                    .body((BusinessInsightResponse) cached.get());
+        }
+        BusinessInsightResponse response = businessAnalystService.analyze();
+        aiCacheService.put(cacheKey, response);
+        return ResponseEntity.ok()
+                .header("X-Cache", "MISS")
+                .body(response);
     }
 
     // ==============================
@@ -71,13 +97,25 @@ public class AiController {
     @PostMapping("/consult")
     public ResponseEntity<ChatResponse> consult(
             @Valid @RequestBody ConsultantRequest request) {
+        String cacheKey = aiCacheService.key("consult", request.getMessage());
+        Optional<Object> cached = aiCacheService.get(cacheKey);
+        if (cached.isPresent()) {
+            return ResponseEntity.ok()
+                    .header("X-Cache", "HIT")
+                    .body((ChatResponse) cached.get());
+        }
+        ChatResponse response;
         try {
             String reply = consultantService.consult(request.getMessage());
-            return ResponseEntity.ok(ChatResponse.success(reply));
+            response = ChatResponse.success(reply);
         } catch (Exception e) {
             return ResponseEntity.ok(
                     ChatResponse.error("Consultant service unavailable. Please check Ollama."));
         }
+        aiCacheService.put(cacheKey, response);
+        return ResponseEntity.ok()
+                .header("X-Cache", "MISS")
+                .body(response);
     }
 
     // ==============================

@@ -7,6 +7,8 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Feature 1 — AI Chat with Database (NL → SQL → Execute → AI Explanation)
@@ -37,7 +39,7 @@ public class NlQueryService {
 
         try {
             // Step 1: Generate SQL from natural language
-            String sql = generateSql(userQuestion);
+            String sql = mysqlSafe(cleanSql(generateSql(userQuestion)));
 
             // Step 2: Safety check — only SELECT allowed
             if (!isSafeQuery(sql)) {
@@ -121,9 +123,9 @@ public class NlQueryService {
         if (!upper.startsWith("SELECT")) return false;
         // Reject any destructive keywords
         String[] forbidden = {"INSERT", "UPDATE", "DELETE", "DROP", "ALTER",
-                "CREATE", "TRUNCATE", "EXEC", "EXECUTE", "--", ";"};
+                "CREATE", "TRUNCATE", "EXEC", "EXECUTE", "--"};
         for (String kw : forbidden) {
-            if (upper.contains(kw) && !upper.startsWith("SELECT")) return false;
+            if (upper.contains(kw)) return false;
         }
         // Allow only one statement (no semicolon mid-query)
         long semicolons = sql.chars().filter(c -> c == ';').count();
@@ -142,7 +144,7 @@ public class NlQueryService {
         List<Object[]> rawRows = nativeQuery.getResultList();
 
         // Column names for products SELECT *
-        String[] cols = {"id", "battery", "brand", "camera", "display",
+        String[] cols = {"id", "battery", "brand", "camera", "display_info",
                 "image_url", "name", "price", "processor", "ram",
                 "rating", "stock", "storage"};
 
@@ -209,5 +211,55 @@ public class NlQueryService {
             }
         }
         return sql.toString().trim();
+    }
+
+    // ==============================
+    // Make LLM SQL compatible with MySQL
+    // ==============================
+    // MySQL rejects "LIMIT" inside an IN/ALL/ANY/SOME subquery.
+    // Wrap such subqueries in a derived table, which MySQL accepts:
+    //   WHERE brand IN (SELECT ... LIMIT 1)
+    //   => WHERE brand IN (SELECT * FROM (SELECT ... LIMIT 1) __sq)
+    private String mysqlSafe(String sql) {
+        String cleaned = sql.trim().replaceAll(";\\s*$", "");
+        if (cleaned.isEmpty()) return cleaned;
+
+        StringBuilder out = new StringBuilder();
+        int last = 0;
+        Matcher matcher = Pattern.compile("(?i)\\b(not\\s+)?(in|any|all|some)\\s*\\(")
+                .matcher(cleaned);
+        while (matcher.find()) {
+            int open = matcher.end() - 1;
+            int close = findMatchingParen(cleaned, open);
+            if (close < 0) break;
+            String inner = cleaned.substring(open + 1, close);
+            boolean isSelect = inner.trim().toLowerCase().startsWith("select");
+            boolean hasLimit = Pattern.compile("(?i)\\blimit\\s+\\d").matcher(inner).find();
+            if (isSelect && hasLimit) {
+                out.append(cleaned, last, open + 1);
+                out.append("SELECT * FROM (").append(inner.trim()).append(") __sq)");
+                last = close + 1;
+            }
+        }
+        if (last == 0) return cleaned;
+        out.append(cleaned, last, cleaned.length());
+        return out.toString();
+    }
+
+    private int findMatchingParen(String sql, int openIndex) {
+        int depth = 0;
+        boolean inString = false;
+        for (int i = openIndex; i < sql.length(); i++) {
+            char c = sql.charAt(i);
+            if (c == '\'') {
+                inString = !inString;
+            } else if (!inString && c == '(') {
+                depth++;
+            } else if (!inString && c == ')') {
+                depth--;
+                if (depth == 0) return i;
+            }
+        }
+        return -1;
     }
 }

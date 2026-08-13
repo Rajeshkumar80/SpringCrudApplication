@@ -1,5 +1,6 @@
 package com.example.Product.controller;
 
+import com.example.Product.dto.ComparisonDTO;
 import com.example.Product.dto.ProductDTO;
 import com.example.Product.service.FileStorageService;
 import com.example.Product.service.ProductService;
@@ -33,6 +34,15 @@ public class ProductController {
     @GetMapping("/all")
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
+    }
+
+    // ==============================
+    // GET Compare Products (2-3 ids, comma separated)
+    // ==============================
+    @GetMapping("/compare")
+    public ResponseEntity<ComparisonDTO> compareProducts(
+            @RequestParam("ids") List<Long> ids) {
+        return ResponseEntity.ok(productService.compareProducts(ids));
     }
 
     // ==============================

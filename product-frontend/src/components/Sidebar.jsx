@@ -1,5 +1,5 @@
 import {
-  MdDashboard, MdInventory2, MdBarChart, MdSmartphone,
+  MdDashboard, MdInventory2, MdBarChart, MdSmartphone, MdCompareArrows,
 } from 'react-icons/md';
 import {
   RiRobot2Fill, RiDatabase2Fill, RiBrainFill,
@@ -18,6 +18,7 @@ const navItems = [
     section: 'Inventory',
     items: [
       { id: 'products', label: 'Products', icon: <MdInventory2 /> },
+      { id: 'compare', label: 'Compare', icon: <MdCompareArrows /> },
     ],
   },
   {

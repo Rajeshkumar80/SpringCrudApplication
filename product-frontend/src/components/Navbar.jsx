@@ -5,6 +5,7 @@ const pageTitles = {
   dashboard:            { title: 'Dashboard',                 sub: 'Real-time overview of your product inventory' },
   analytics:            { title: 'Analytics',                 sub: 'Charts and data insights' },
   products:             { title: 'Products',                  sub: 'Manage your complete product catalog' },
+  compare:              { title: 'Compare Products',          sub: 'Pick 2–3 products and compare specs side by side' },
   'ai-database':        { title: 'AI Chat with Database',     sub: 'Ask anything in plain English — AI queries your database' },
   'ai-insights':        { title: 'AI Business Analyst',       sub: 'AI-generated insights from your live inventory data' },
   'ai-consultant':      { title: 'AI Product Consultant',     sub: 'Get expert recommendations tailored to your exact needs' },

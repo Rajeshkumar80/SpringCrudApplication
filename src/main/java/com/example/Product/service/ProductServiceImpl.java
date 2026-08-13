@@ -1,5 +1,7 @@
 package com.example.Product.service;
 
+import com.example.Product.dto.ComparisonDTO;
+import com.example.Product.dto.ComparisonItem;
 import com.example.Product.dto.ProductDTO;
 import com.example.Product.exception.ResourceNotFoundException;
 import com.example.Product.model.Product;
@@ -7,16 +9,25 @@ import com.example.Product.repository.ProductRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final RecommendationEngineService recommendationEngineService;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    private static final Pattern MAH_PATTERN = Pattern.compile("\\d+");
+
+    public ProductServiceImpl(ProductRepository productRepository,
+                              RecommendationEngineService recommendationEngineService) {
         this.productRepository = productRepository;
+        this.recommendationEngineService = recommendationEngineService;
     }
 
     // ==============================
@@ -135,6 +146,54 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
         product.setImageUrl(imageUrl);
         return mapToDTO(productRepository.save(product));
+    }
+
+    // ==============================
+    // Compare 2-3 products side by side
+    // ==============================
+    @Override
+    public ComparisonDTO compareProducts(List<Long> ids) {
+        if (ids == null || ids.size() < 2 || ids.size() > 3) {
+            throw new IllegalArgumentException("Select 2 to 3 products to compare.");
+        }
+
+        List<Product> products = new ArrayList<>();
+        for (Long id : ids) {
+            products.add(productRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id)));
+        }
+
+        double minPrice = products.stream().mapToDouble(Product::getPrice).min().orElse(0);
+        double maxPrice = products.stream().mapToDouble(Product::getPrice).max().orElse(1);
+
+        double bestPrice   = products.stream().mapToDouble(Product::getPrice).min().getAsDouble();
+        double bestRating  = products.stream().mapToDouble(Product::getRating).max().getAsDouble();
+        int    bestMah     = products.stream().mapToInt(p -> extractMah(p.getBattery())).max().getAsInt();
+
+        Product overallBest = products.stream()
+                .max(Comparator.comparingDouble(p -> recommendationEngineService
+                        .score(p, maxPrice, minPrice).getOverallAiScore()))
+                .get();
+
+        List<ComparisonItem> items = products.stream()
+                .map(p -> new ComparisonItem(
+                        mapToDTO(p),
+                        p.getPrice() == bestPrice,
+                        p.getRating() == bestRating,
+                        extractMah(p.getBattery()) == bestMah,
+                        p.getId().equals(overallBest.getId())))
+                .collect(Collectors.toList());
+
+        return new ComparisonDTO(items, overallBest.getName());
+    }
+
+    // ==============================
+    // Extract mAh number from battery string ("5910mAh" → 5910)
+    // ==============================
+    private int extractMah(String battery) {
+        if (battery == null) return 0;
+        Matcher m = MAH_PATTERN.matcher(battery);
+        return m.find() ? Integer.parseInt(m.group()) : 0;
     }
 
     // ==============================

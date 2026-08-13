@@ -35,6 +35,10 @@ const ProductService = {
   // Search + Pagination + Sorting
   searchProducts: (keyword, page = 0, size = 5, sortBy = 'id', sortDir = 'asc') =>
     axiosClient.get(`${BASE_URL}/search`, { params: { keyword, page, size, sortBy, sortDir } }),
+
+  // Compare 2-3 products side by side
+  compareProducts: (ids) =>
+    axiosClient.get(`${BASE_URL}/compare`, { params: { ids: ids.join(',') } }),
 };
 
 export default ProductService;

@@ -11,6 +11,7 @@ import Chatbot from './components/Chatbot';
 import DashboardPage        from './pages/DashboardPage';
 import AnalyticsPage        from './pages/AnalyticsPage';
 import ProductsPage         from './pages/ProductsPage';
+import ComparePage          from './pages/ComparePage';
 import AiAssistantPage      from './pages/AiAssistantPage';
 import AiDatabasePage       from './pages/AiDatabasePage';
 import AiInsightsPage       from './pages/AiInsightsPage';
@@ -51,6 +52,7 @@ function App() {
       case 'dashboard':            return <DashboardPage />;
       case 'analytics':            return <AnalyticsPage />;
       case 'products':             return <ProductsPage openAdd={openAdd} setOpenAdd={setOpenAdd} showToast={showToast} />;
+      case 'compare':              return <ComparePage />;
       case 'ai-database':          return <AiDatabasePage />;
       case 'ai-insights':          return <AiInsightsPage />;
       case 'ai-consultant':        return <AiConsultantPage />;

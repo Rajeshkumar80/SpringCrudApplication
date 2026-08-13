@@ -1,5 +1,6 @@
 package com.example.Product.service;
 
+import com.example.Product.dto.ComparisonDTO;
 import com.example.Product.dto.ProductDTO;
 import org.springframework.data.domain.Page;
 
@@ -19,6 +20,9 @@ public interface ProductService {
     void deleteProduct(Long id);
 
     ProductDTO updateImageUrl(Long id, String imageUrl);
+
+    // Comparison (2-3 products)
+    ComparisonDTO compareProducts(List<Long> ids);
 
     // Pagination + Sorting
     Page<ProductDTO> getProductsPaged(int page, int size, String sortBy, String sortDir);

@@ -26,6 +26,25 @@ A full-stack AI-powered product (mobile phone) inventory management platform bui
 - **Frontend:** React 19, Vite, Recharts, Framer Motion, Axios, React Router (state-based navigation)
 - **AI:** Ollama `llama3.2:1b` (local, offline)
 - **CI:** GitHub Actions (Maven verify + MySQL service container, Vitest + production build)
+- **Deploy:** Docker Compose (multi-stage builds, nginx SPA proxy, named volumes, healthchecks)
+
+## Quick Start (Docker — recommended)
+
+Requires [Docker](https://www.docker.com/products/docker-desktop/) with Docker Compose.
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+# pull the AI model (one time)
+docker compose exec ollama ollama pull llama3.2:1b
+docker compose restart backend
+```
+
+- Frontend: **http://localhost:5173** (nginx serves the built SPA, proxies `/api` and `/uploads` to the backend)
+- Backend API: **http://localhost:8888**
+- Persisted volumes: `mysql-data`, `ollama-data`, `uploads-data`
+
+The backend container auto-seeds the database with default users on first boot.
 
 ## Quick Start (local development)
 
@@ -80,6 +99,8 @@ Open **http://localhost:5173**.
 
 ```
 .
+├── backend/Dockerfile        # multi-stage Maven build -> JRE 21
+├── docker-compose.yml        # mysql + ollama + backend + frontend (nginx)
 ├── src/main/java/com/example/Product/
 │   ├── controller/     # REST endpoints
 │   ├── service/        # business logic + AI services

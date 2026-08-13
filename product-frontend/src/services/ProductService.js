@@ -19,6 +19,15 @@ const ProductService = {
   // Delete
   deleteProduct: (id) => axiosClient.delete(`${BASE_URL}/${id}`),
 
+  // Upload image (multipart)
+  uploadImage: (id, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axiosClient.post(`${BASE_URL}/${id}/image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
   // Paginated + Sorted
   getProductsPaged: (page = 0, size = 5, sortBy = 'id', sortDir = 'asc') =>
     axiosClient.get(BASE_URL, { params: { page, size, sortBy, sortDir } }),

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MdClose } from 'react-icons/md';
+import { MdClose, MdImage } from 'react-icons/md';
 
 const empty = {
   name: '', brand: '', price: '', processor: '', ram: '',
@@ -12,15 +12,26 @@ function ProductModal({ open, onClose, onSave, editProduct }) {
   const [form, setForm] = useState(empty);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState('');
 
   useEffect(() => {
     if (editProduct) {
       setForm({ ...editProduct, price: String(editProduct.price), rating: String(editProduct.rating), stock: String(editProduct.stock) });
+      setPreview(editProduct.imageUrl || '');
     } else {
       setForm(empty);
+      setPreview('');
     }
+    setFile(null);
     setErrors({});
   }, [editProduct, open]);
+
+  const handleFileChange = (e) => {
+    const selected = e.target.files?.[0] || null;
+    setFile(selected);
+    setPreview(selected ? URL.createObjectURL(selected) : '');
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,7 +62,7 @@ function ProductModal({ open, onClose, onSave, editProduct }) {
         price: parseFloat(form.price),
         rating: parseFloat(form.rating),
         stock: parseInt(form.stock, 10),
-      });
+      }, file);
     } finally {
       setSaving(false);
     }
@@ -142,6 +153,27 @@ function ProductModal({ open, onClose, onSave, editProduct }) {
                     <input className="form-input" name="stock" type="number" value={form.stock} onChange={handleChange} placeholder="e.g. 20" min="0" />
                     {errors.stock && <span className="form-error">{errors.stock}</span>}
                   </div>
+                </div>
+
+                {/* Product Image */}
+                <div className="form-group" style={{ marginTop: 4 }}>
+                  <label className="form-label">Product Image</label>
+                  <label className="image-upload-box" style={{ cursor: 'pointer' }}>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} style={{ display: 'none' }} />
+                    {preview ? (
+                      <img src={preview} alt="preview" style={{ width: '100%', maxHeight: 180, objectFit: 'contain', borderRadius: 8 }} />
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 0', color: 'var(--color-text-muted)' }}>
+                        <MdImage size={26} />
+                        <span style={{ fontSize: 'var(--font-size-xs)' }}>Click to choose a JPEG / PNG / WEBP image (max 5MB)</span>
+                      </div>
+                    )}
+                  </label>
+                  {file && (
+                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+                      Selected: {file.name}
+                    </span>
+                  )}
                 </div>
               </div>
 

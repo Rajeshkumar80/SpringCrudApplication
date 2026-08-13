@@ -72,14 +72,19 @@ function ProductsPage({ openAdd, setOpenAdd, showToast }) {
 
   useEffect(() => { load(); }, [load]);
 
-  const handleSave = async (form) => {
+  const handleSave = async (form, file) => {
     try {
+      let saved;
       if (editProduct) {
-        await ProductService.updateProduct(editProduct.id, form);
+        saved = (await ProductService.updateProduct(editProduct.id, form)).data;
         showToast('Product updated successfully!', 'success');
       } else {
-        await ProductService.createProduct(form);
+        saved = (await ProductService.createProduct(form)).data;
         showToast('Product added successfully!', 'success');
+      }
+      if (file) {
+        await ProductService.uploadImage(saved.id, file);
+        showToast('Image uploaded successfully!', 'success');
       }
       setModalOpen(false);
       setEditProduct(null);
@@ -185,7 +190,11 @@ function ProductsPage({ openAdd, setOpenAdd, showToast }) {
                       <td style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-xs)' }}>{p.id}</td>
                       <td>
                         <div className="product-name-cell">
-                          <div className="product-img-placeholder"><MdPhoneAndroid /></div>
+                          {p.imageUrl ? (
+                            <img src={p.imageUrl} alt={p.name} className="product-img" />
+                          ) : (
+                            <div className="product-img-placeholder"><MdPhoneAndroid /></div>
+                          )}
                           <div>
                             <div className="product-name">{p.name}</div>
                             <div className="product-brand">{p.brand}</div>

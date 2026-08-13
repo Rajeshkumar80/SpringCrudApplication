@@ -1,14 +1,17 @@
 package com.example.Product.controller;
 
 import com.example.Product.dto.ProductDTO;
+import com.example.Product.service.FileStorageService;
 import com.example.Product.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -16,9 +19,12 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final FileStorageService fileStorageService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService,
+                             FileStorageService fileStorageService) {
         this.productService = productService;
+        this.fileStorageService = fileStorageService;
     }
 
     // ==============================
@@ -65,6 +71,21 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok("Product deleted successfully.");
+    }
+
+    // ==============================
+    // POST Upload Product Image (multipart, ADMIN only)
+    // ==============================
+    @PostMapping("/{id}/image")
+    public ResponseEntity<Map<String, Object>> uploadImage(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        String url = fileStorageService.store(file);
+        ProductDTO updated = productService.updateImageUrl(id, url);
+        return ResponseEntity.ok(Map.of(
+                "message", "Image uploaded successfully",
+                "imageUrl", url,
+                "product", updated));
     }
 
     // ==============================

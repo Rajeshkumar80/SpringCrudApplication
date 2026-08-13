@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -48,6 +49,22 @@ public class GlobalExceptionHandler {
                 fieldErrors.put(error.getField(), error.getDefaultMessage()));
 
         response.put("messages", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // ==============================
+    // File too large
+    // ==============================
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSize(
+            MaxUploadSizeExceededException ex) {
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", 400);
+        response.put("error", "Bad Request");
+        response.put("message", "File exceeds the 5MB size limit");
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

@@ -127,6 +127,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     // ==============================
+    // Update Product Image URL
+    // ==============================
+    @Override
+    public ProductDTO updateImageUrl(Long id, String imageUrl) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
+        product.setImageUrl(imageUrl);
+        return mapToDTO(productRepository.save(product));
+    }
+
+    // ==============================
     // Paginated + Sorted Products
     // ==============================
     @Override

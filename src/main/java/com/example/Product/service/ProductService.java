@@ -18,6 +18,8 @@ public interface ProductService {
 
     void deleteProduct(Long id);
 
+    ProductDTO updateImageUrl(Long id, String imageUrl);
+
     // Pagination + Sorting
     Page<ProductDTO> getProductsPaged(int page, int size, String sortBy, String sortDir);
 

@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         // Read endpoints stay public
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        // Uploaded images are public
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                         // AI read-only query endpoints stay public
                         .requestMatchers(HttpMethod.POST, "/api/ai/**", "/api/chat").permitAll()
                         // Write endpoints require ADMIN
